@@ -62,11 +62,18 @@ class DiploidCA:
         else:
             return self._arr
 
+    def get_density(self):
+        d = np.mean(self._arr)
 
-DCA1 = DiploidCA(n=20, nt=20, l=0.7)
+        return d
+
+
+DCA1 = DiploidCA(n=10000, nt=5000, l=0.7)
 final_arr1, history1 = DCA1.run(history=True)
 
-print(history1)
+d1 = DCA1.get_density()
+
+print(d1)
 
 
 
