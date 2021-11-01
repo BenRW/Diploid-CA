@@ -48,14 +48,6 @@ def vary_lambda(size, n_iterations, save=True):
 
     return l_array, density
 
-# start = time.time()
-
-# for _  in range(50):
-#     larray, density = vary_lambda(500, 100)
-
-# speed = time.time() - start
-# print('Simulation time: '+str(speed))
-
 def vary_lambda_analysis(size, n_iterations):
     """Plots all saved runs of the same system size and number of iterations
     on a single figure"""
@@ -63,7 +55,6 @@ def vary_lambda_analysis(size, n_iterations):
     densities = []
     os.chdir("data/")
     for file in glob.glob("*.txt"):
-        print(file)
         # finding system size from filename (number after 2nd '_')
         u = file.find('_')+1
         u += file[u:].find('_')+1
@@ -77,16 +68,45 @@ def vary_lambda_analysis(size, n_iterations):
                 l, d = np.loadtxt(file, delimiter=", ")
                 l_arrays.append(l)
                 densities.append(d)
+
+    # compute mean and std of "averaged run"
+    l_av = np.arange(0, 1.05, 0.01)
+    rho_matrix = np.zeros((len(l_arrays), len(l_av)))
+    for i in range(len(l_arrays)):
+        rho_matrix[i, :] = np.interp(l_av, l_arrays[i], densities[i])
+    rho_av = rho_matrix.mean(axis=0)
+    rho_std = rho_matrix.std(axis=0)
+    print(rho_av, rho_std)
         
     # plot all runs in a single figure
-    plt.figure()
+    plt.figure(1)
     for i in range(len(l_arrays)):
         plt.plot(l_arrays[i], densities[i], alpha=0.75)
     plt.ylabel(r"$\rho$")
     plt.xlabel(r"$\lambda$")
+
+    # plot averaged run with estimated uncertainties
+    plt.figure(2)
+    plt.fill_between(l_av, rho_av-rho_std, rho_av+rho_std, facecolor="r", alpha=0.4)
+    plt.plot(l_av, rho_av, "r-")
+    plt.ylabel(r"$\rho$")
+    plt.xlabel(r"$\lambda$")
+
     plt.show()
+
+    
     
             
     return 0
 
-vary_lambda_analysis(500, 100)
+# start = time.time()
+
+# for _ in range(2):
+# larray, density = vary_lambda(10000, 5000)
+
+# speed = time.time() - start
+# print('Simulation time: '+str(speed))
+
+
+# vary_lambda_analysis(500, 100)
+vary_lambda_analysis(10000, 5000)
