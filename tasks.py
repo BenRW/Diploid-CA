@@ -101,8 +101,13 @@ def vary_lambda_analysis(size, n_iterations):
 
 # start = time.time()
 
+<<<<<<< HEAD
 # for _ in range(4):
 #     larray, density = vary_lambda(10000, 5000)
+=======
+for _ in range(6):
+    larray, density = vary_lambda(10000, 5000)
+>>>>>>> fd21d47825b0f21af6cab4d87d084033e57827bf
 
 # speed = time.time() - start
 # print('Simulation time: '+str(speed))
