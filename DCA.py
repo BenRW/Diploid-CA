@@ -1,5 +1,5 @@
 import numpy as np
-
+import matplotlib.pyplot as plt
 
 class DiploidCA:
     def __init__(self, n, nt, l):
@@ -70,6 +70,14 @@ class DiploidCA:
         d = np.mean(self._arr)
 
         return d
+
+    def get_diagram(self):
+        fig, ax = plt.subplots()
+        im = ax.imshow(self._history, cmap="binary")
+        ax.set_xlabel("x")
+        ax.set_ylabel("Time")
+
+        return fig, ax
 
 
 

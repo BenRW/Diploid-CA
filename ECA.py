@@ -57,7 +57,7 @@ class ECA172:
         im = ax.imshow(self._history, cmap="binary")
         ax.set_xlabel("x")
         ax.set_ylabel("Time")
-
+        
         plt.show()
 
 eca1 = ECA172(100, 100)

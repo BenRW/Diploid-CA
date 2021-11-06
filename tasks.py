@@ -4,7 +4,6 @@ import DCA
 import time
 import glob, os
 
-
 def vary_lambda(size, n_iterations, save=True):
     l = 0
     threshold = 0.01
@@ -70,13 +69,12 @@ def vary_lambda_analysis(size, n_iterations):
                 densities.append(d)
 
     # compute mean and std of "averaged run"
-    l_av = np.arange(0, 1.05, 0.01)
+    l_av = np.arange(0, 0.99, 0.01)
     rho_matrix = np.zeros((len(l_arrays), len(l_av)))
     for i in range(len(l_arrays)):
         rho_matrix[i, :] = np.interp(l_av, l_arrays[i], densities[i])
     rho_av = rho_matrix.mean(axis=0)
     rho_std = rho_matrix.std(axis=0)
-    print(rho_av, rho_std)
         
     # plot all runs in a single figure
     plt.figure(1)
@@ -87,10 +85,35 @@ def vary_lambda_analysis(size, n_iterations):
 
     # plot averaged run with estimated uncertainties
     plt.figure(2)
-    plt.fill_between(l_av, rho_av-rho_std, rho_av+rho_std, facecolor="r", alpha=0.4)
-    plt.plot(l_av, rho_av, "r-")
+    # plt.fill_between(l_av, rho_av-rho_std, rho_av+rho_std, facecolor="r", alpha=0.4)
+    plt.fill_between(l_av, rho_av-2*rho_std, rho_av+2*rho_std, facecolor="r", alpha=0.4, label="2$\sigma$")
+    plt.plot(l_av, rho_av, "r-", label="mean")
     plt.ylabel(r"$\rho$")
     plt.xlabel(r"$\lambda$")
+    plt.legend()
+
+    # plot together
+    fig3, (ax1, ax2) = plt.subplots(1, 2, sharey=True, figsize=(9,3))
+    ax1.axvspan(0.72, 0.73, facecolor='blue', alpha=0.4)
+    for i in range(len(l_arrays)):
+        ax1.plot(l_arrays[i], densities[i], alpha=0.75)
+    ax1.set_ylabel(r"$\rho$")
+    ax2.set_xlabel(r"$\lambda$")
+    # plt.fill_between(l_av, rho_av-rho_std, rho_av+rho_std, facecolor="r", alpha=0.4)
+    ax2.axvspan(0.72, 0.73, facecolor='blue', alpha=0.4)
+    ax2.fill_between(l_av, rho_av-2*rho_std, rho_av+2*rho_std, facecolor="#ffa1a1", label="2$\sigma$")
+    ax2.plot(l_av, rho_av, "r-", label="mean")
+    ax2.set_xlabel(r"$\lambda$")
+    ax2.legend()
+
+    # subfigure labels
+    ax1.text(0.94, 0.02, "a)", fontsize=13, backgroundcolor="#ededed")
+    ax2.text(0.94, 0.02, "b)", fontsize=13, backgroundcolor="#ededed")
+
+    fig3.tight_layout()
+
+    os.chdir("..")
+    plt.savefig("figs\\density_lambda.pdf")
 
     plt.show()
 
@@ -99,19 +122,25 @@ def vary_lambda_analysis(size, n_iterations):
             
     return 0
 
+def st_diagram_DCA(size, n_iterations):
+    eca22 = DCA.DiploidCA(n=size, nt=n_iterations, l=1)
+    eca22.run(history=True)
+    fig, ax = eca22.get_diagram()
+
+    # fig.savefig("figs\\ECA22_"+str(size)+"_"+str(n_iterations)+".pdf")
+    plt.show()
+
+# st_diagram_DCA(500, 500)
+
+
 # start = time.time()
 
-<<<<<<< HEAD
-# for _ in range(4):
+# for _ in range(1):
 #     larray, density = vary_lambda(10000, 5000)
-=======
-for _ in range(6):
-    larray, density = vary_lambda(10000, 5000)
->>>>>>> fd21d47825b0f21af6cab4d87d084033e57827bf
 
 # speed = time.time() - start
 # print('Simulation time: '+str(speed))
 
 
 # vary_lambda_analysis(500, 100)
-vary_lambda_analysis(10000, 5000)
+# vary_lambda_analysis(10000, 5000)
