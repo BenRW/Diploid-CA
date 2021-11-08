@@ -2,10 +2,15 @@ import numpy as np
 import matplotlib.pyplot as plt
 
 class DiploidCA:
-    def __init__(self, n, nt, l):
+    def __init__(self, n, nt, l, rule=22):
         self._n = n
         self._l = l
         self._nt = nt
+
+        if rule==22:
+            self._f2_choice = 22
+        else:
+            self._f2_choice = 254
 
         # initial configuration
         self._arr = np.random.randint(0, 2, self._n)
@@ -29,16 +34,56 @@ class DiploidCA:
     def f1(self):
         return 0
 
-    def f2(self):
-        # implementing ECA rule 22
-        if np.count_nonzero(self._nhood==1)==1:
+    def rule22(self):
+        """Implements ECA rule 22"""
+        if np.count_nonzero(self._nhood)==1:
             new_val = 1
         else:
             new_val = 0
         
         return new_val
 
-    def iterate_dCA(self, t, history):
+    def rule254(self):
+        """Implements ECA rule 254. Note that rule 254=11111110, yields 
+        1 for all neighbourhoods but 000."""
+        if self._nhood[0]==1:
+            new_val = 1
+        else:
+            if self._nhood[1]==1:
+                new_val=1
+            else:
+                if self._nhood[2]==1:
+                    new_val=1
+                else:
+                    # only the case if self._nhood=[0,0,0]
+                    new_val=0
+        
+        return new_val
+
+    def iterate_dCA22(self, t, history):
+        """Iterates the DCA, where f2 is rule 22. Saves configuration of 
+        domain if history is true."""
+        new_arr = np.zeros(self._n)
+
+        # generate array of length n determining whether f2 will be followed
+        follow_f2 = np.random.random(self._n)<self._l
+
+        for i in range(self._n):
+            self.get_neighbourhood(i)
+
+            # if this entry in follow_f2 is True, then follow rule f2
+            if follow_f2[i]:
+                new_arr[i] = self.rule22()
+            else:
+                new_arr[i] = self.f1()
+        
+        self._arr = new_arr.copy()
+        if history:
+            self._history[t] = new_arr.copy()
+
+    def iterate_dCA254(self, t, history):
+        """Iterates the DCA, where f2 is rule 254. Saves configuration of 
+        domain if history is true."""
         new_arr = np.zeros(self._n)
 
         # generate array of length n determining whether f2 will be followed
@@ -49,7 +94,7 @@ class DiploidCA:
 
             # if this entry in follow_f2 is True, then follow rule f2
             if follow_f2[i]:
-                new_arr[i] = self.f2()
+                new_arr[i] = self.rule254()
             else:
                 new_arr[i] = self.f1()
         
@@ -58,8 +103,12 @@ class DiploidCA:
             self._history[t] = new_arr.copy()
     
     def run(self, history=False):
-        for t in range(1, self._nt):
-            self.iterate_dCA(t, history)
+        if self._f2_choice==22:
+            for t in range(1, self._nt):
+                self.iterate_dCA22(t, history)
+        else:
+            for t in range(1, self._nt):
+                self.iterate_dCA254(t, history)
         
         if history:
             return self._arr, self._history

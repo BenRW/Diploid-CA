@@ -4,7 +4,7 @@ import DCA
 import time
 import glob, os
 
-def vary_lambda(size, n_iterations, save=True):
+def vary_lambda(size, n_iterations, save=True, is_22=True):
     l = 0
     threshold = 0.01
     density = []
@@ -12,8 +12,11 @@ def vary_lambda(size, n_iterations, save=True):
     n = 0
     large_step = False
 
-    while l < 1.:
-        DCA_i = DCA.DiploidCA(n=size, nt=n_iterations, l=l)
+    while l <= 1.:
+        if is_22:
+            DCA_i = DCA.DiploidCA(n=size, nt=n_iterations, l=l)
+        else:
+            DCA_i = DCA.DiploidCA(n=size, nt=n_iterations, l=l, rule=254)
         DCA_i.run(history=False)
         density.append(DCA_i.get_density())
         l_array.append(l)
@@ -39,26 +42,38 @@ def vary_lambda(size, n_iterations, save=True):
 
     if save:
         # saving data to files with unique names so they won't overwrite
-        np.savetxt("data/vary_lambda_"+str(size)+"_"+str(n_iterations)+"_"+str(time.time())+".txt",
-                    (l_array, density), delimiter=", " )
+        if is_22:
+            np.savetxt("data/vary_lambda_"+str(size)+"_"+str(n_iterations)+"_"+str(time.time())+".txt",
+                        (l_array, density), delimiter=", " )
+        else:
+            np.savetxt("data/vary_lambda_254_"+str(size)+"_"+str(n_iterations)+"_"+str(time.time())+".txt",
+                        (l_array, density), delimiter=", " )
     else:
         plt.plot(l_array, density)
         plt.show()
 
     return l_array, density
 
-def vary_lambda_analysis(size, n_iterations):
+def vary_lambda_analysis(size, n_iterations, is_22=True):
     """Plots all saved runs of the same system size and number of iterations
     on a single figure"""
     l_arrays = []
     densities = []
     os.chdir("data/")
     for file in glob.glob("*.txt"):
-        # finding system size from filename (number after 2nd '_')
-        u = file.find('_')+1
-        u += file[u:].find('_')+1
-        u2 = file[u:].find('_') + u
-        s = int(file[u:u2])
+        if is_22:
+            # finding system size from filename (number after 2nd '_')
+            u = file.find('_')+1
+            u += file[u:].find('_')+1
+            u2 = file[u:].find('_') + u
+            s = int(file[u:u2])
+        else:
+            # finding system size from filename (number after 3rd '_')
+            u = file.find('_')+1
+            u += file[u:].find('_')+1
+            u += file[u:].find('_')+1
+            u2 = file[u:].find('_') + u
+            s = int(file[u:u2])
         if s==size:
             u += file[u:].find('_')+1
             u2 = file[u:].find('_') + u
@@ -85,7 +100,6 @@ def vary_lambda_analysis(size, n_iterations):
 
     # plot averaged run with estimated uncertainties
     plt.figure(2)
-    # plt.fill_between(l_av, rho_av-rho_std, rho_av+rho_std, facecolor="r", alpha=0.4)
     plt.fill_between(l_av, rho_av-2*rho_std, rho_av+2*rho_std, facecolor="r", alpha=0.4, label="2$\sigma$")
     plt.plot(l_av, rho_av, "r-", label="mean")
     plt.ylabel(r"$\rho$")
@@ -94,13 +108,14 @@ def vary_lambda_analysis(size, n_iterations):
 
     # plot together
     fig3, (ax1, ax2) = plt.subplots(1, 2, sharey=True, figsize=(9,3))
-    ax1.axvspan(0.72, 0.73, facecolor='blue', alpha=0.4)
+    if is_22:
+        ax1.axvspan(0.72, 0.73, facecolor='blue', alpha=0.4)
     for i in range(len(l_arrays)):
         ax1.plot(l_arrays[i], densities[i], alpha=0.75)
     ax1.set_ylabel(r"$\rho$")
     ax2.set_xlabel(r"$\lambda$")
-    # plt.fill_between(l_av, rho_av-rho_std, rho_av+rho_std, facecolor="r", alpha=0.4)
-    ax2.axvspan(0.72, 0.73, facecolor='blue', alpha=0.4)
+    if is_22:
+        ax2.axvspan(0.72, 0.73, facecolor='blue', alpha=0.4)
     ax2.fill_between(l_av, rho_av-2*rho_std, rho_av+2*rho_std, facecolor="#ffa1a1", label="2$\sigma$")
     ax2.plot(l_av, rho_av, "r-", label="mean")
     ax2.set_xlabel(r"$\lambda$")
@@ -113,7 +128,10 @@ def vary_lambda_analysis(size, n_iterations):
     fig3.tight_layout()
 
     os.chdir("..")
-    plt.savefig("figs\\density_lambda.pdf")
+    if is_22:
+        plt.savefig("figs\\density_lambda.pdf")
+    # else:
+        #  plt.savefig("figs\\density_lambda254.pdf")
 
     plt.show()
 
@@ -130,17 +148,15 @@ def st_diagram_DCA(size, n_iterations):
     # fig.savefig("figs\\ECA22_"+str(size)+"_"+str(n_iterations)+".pdf")
     plt.show()
 
-# st_diagram_DCA(500, 500)
 
 
-# start = time.time()
+start = time.time()
 
-# for _ in range(1):
-#     larray, density = vary_lambda(10000, 5000)
+for _ in range(1):
+    larray, density = vary_lambda(10000, 5000, is_22=False)
 
-# speed = time.time() - start
-# print('Simulation time: '+str(speed))
+speed = time.time() - start
+print('Simulation time: '+str(speed))
 
-
-# vary_lambda_analysis(500, 100)
-# vary_lambda_analysis(10000, 5000)
+# vary_lambda_analysis(500, 100, is_22=False)
+# vary_lambda_analysis(10000, 5000, is_22=False)
