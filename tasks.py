@@ -12,7 +12,7 @@ def vary_lambda(size, n_iterations, save=True, is_22=True):
     n = 0
     large_step = False
 
-    while l <= 1.3:
+    while l <= 1.04: # 1.04, not 1, in case the code takes a big step at the end
         if is_22:
             DCA_i = DCA.DiploidCA(n=size, nt=n_iterations, l=l)
         else:
@@ -152,11 +152,7 @@ def st_diagram_DCA(size, n_iterations):
 
 start = time.time()
 
-<<<<<<< HEAD
-for _ in range(5):
-=======
-for _ in range(7):
->>>>>>> bd19edd88f5b523e3ab09714e81681ba3e854755
+for _ in range(1):
     larray, density = vary_lambda(10000, 5000, is_22=False)
 
 speed = time.time() - start
