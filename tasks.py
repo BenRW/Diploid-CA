@@ -152,7 +152,11 @@ def st_diagram_DCA(size, n_iterations):
 
 start = time.time()
 
+<<<<<<< HEAD
 for _ in range(5):
+=======
+for _ in range(7):
+>>>>>>> bd19edd88f5b523e3ab09714e81681ba3e854755
     larray, density = vary_lambda(10000, 5000, is_22=False)
 
 speed = time.time() - start
