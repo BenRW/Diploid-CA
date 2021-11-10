@@ -110,12 +110,16 @@ def vary_lambda_analysis(size, n_iterations, is_22=True):
     fig3, (ax1, ax2) = plt.subplots(1, 2, sharey=True, figsize=(9,3))
     if is_22:
         ax1.axvspan(0.72, 0.73, facecolor='blue', alpha=0.4)
+    else:
+        ax1.axvspan(0.52, 0.53, facecolor='blue', alpha=0.4)
     for i in range(len(l_arrays)):
         ax1.plot(l_arrays[i], densities[i], alpha=0.75)
     ax1.set_ylabel(r"$\rho$")
     ax2.set_xlabel(r"$\lambda$")
     if is_22:
         ax2.axvspan(0.72, 0.73, facecolor='blue', alpha=0.4)
+    else:
+        ax2.axvspan(0.52, 0.53, facecolor='blue', alpha=0.4)
     ax2.fill_between(l_av, rho_av-2*rho_std, rho_av+2*rho_std, facecolor="#ffa1a1", label="2$\sigma$")
     ax2.plot(l_av, rho_av, "r-", label="mean")
     ax2.set_xlabel(r"$\lambda$")
@@ -128,14 +132,12 @@ def vary_lambda_analysis(size, n_iterations, is_22=True):
     fig3.tight_layout()
 
     os.chdir("..")
-    if is_22:
+    if is_22 and size==10000:
         plt.savefig("figs\\density_lambda.pdf")
-    # else:
-        #  plt.savefig("figs\\density_lambda254.pdf")
+    elif not is_22 and size==10000:
+        plt.savefig("figs\\density_lambda254.pdf")
 
     plt.show()
-
-    
     
             
     return 0
@@ -150,13 +152,13 @@ def st_diagram_DCA(size, n_iterations):
 
 
 
-start = time.time()
+# start = time.time()
 
-for _ in range(1):
-    larray, density = vary_lambda(10000, 5000, is_22=False)
+# for _ in range(1):
+#     larray, density = vary_lambda(10000, 5000, is_22=False)
 
-speed = time.time() - start
-print('Simulation time: '+str(speed))
+# speed = time.time() - start
+# print('Simulation time: '+str(speed))
 
 # vary_lambda_analysis(500, 100, is_22=False)
-# vary_lambda_analysis(10000, 5000, is_22=False)
+vary_lambda_analysis(10000, 5000, is_22=False)
